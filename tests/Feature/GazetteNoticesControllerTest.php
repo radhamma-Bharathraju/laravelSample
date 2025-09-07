@@ -18,7 +18,7 @@ class GazetteNoticesControllerTest extends TestCase
     }
 
     /** @test */
-    public function it_loads_the_index_page_successfully()
+    public function testLoadsTheIndexPageSuccessfully()
     {
         // Fake an API response
         Http::fake([
@@ -35,7 +35,7 @@ class GazetteNoticesControllerTest extends TestCase
             ], 200),
         ]);
 
-        $response = $this->get('/gazette-notices?page=1');
+        $response = $this->get('/gazette/notices');
 
         $response->assertStatus(200);
         $response->assertViewIs('gazette.index');
@@ -43,7 +43,7 @@ class GazetteNoticesControllerTest extends TestCase
     }
 
     /** @test */
-    public function it_handles_api_failure_gracefully()
+    public function testHandlesApiFailureGracefully()
     {
         // Simulate API failure
         Http::fake([
@@ -51,7 +51,6 @@ class GazetteNoticesControllerTest extends TestCase
         ]);
 
         $response = $this->get('/gazette/notices?page=1');
-        echo $response->assertStatue;
         $response->assertStatus(500);
         $response->assertJson(['error' => 'Unable to fetch Gazette notices.']);
     }
