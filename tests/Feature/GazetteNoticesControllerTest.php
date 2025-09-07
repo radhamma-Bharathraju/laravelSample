@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use Illuminate\Support\Facades\Http;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class GazetteNoticesControllerTest extends TestCase
 {
@@ -42,17 +43,26 @@ class GazetteNoticesControllerTest extends TestCase
         $response->assertViewHas('paginator');
     }
 
+    public function testRouteNotFound()
+    {
+        $this->withoutExceptionHandling(); // ensures exception bubbles up
+
+        $this->expectException(NotFoundHttpException::class);
+
+        $this->get('/non-existing-route');
+    }
     /** @test */
     public function testHandlesApiFailureGracefully()
     {
-        // Simulate API failure
         Http::fake([
-            'https://www.thegazette.co.uk/*' => Http::response(null, 500),
+            'https://www.thegazette.co.uk/*' => Http::response(null, 404),
         ]);
 
-        $response = $this->get('/gazette/notices?page=1');
-        $response->assertStatus(500);
-        $response->assertJson(['error' => 'Unable to fetch Gazette notices.']);
+        $response = $this->get('/gazette-notices?page=1');
+
+        $response->assertStatus(404);
+        $response->assertJson(['error' => 'The route gazette-notices could not be found.']);
     }
+
 }
 
